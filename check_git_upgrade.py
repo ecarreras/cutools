@@ -22,13 +22,16 @@ def main():
     f = open(tmpf, 'w')
     f.write(status_files)
     f.close()
+    count = 0
     for line in md5sum['-c', tmpf](retcode=None).split('\n'):
         if line.endswith('FAILED'):
             puts(colored.red(line))
+            count += 1
         else:
             puts(colored.green(line))
     rm[tmpf]()
-    
+    if count:
+        puts(colored.red("*** WARNING: %s files doesn't match" % count))
 
 if __name__ == '__main__':
     main()
