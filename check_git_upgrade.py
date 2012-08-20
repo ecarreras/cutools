@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 import tempfile
-from clint.textui import puts, colored
+from clint.textui import puts, colored, progress
 from plumbum.cmd import git, md5sum, rm
 
 def get_md5_files():
@@ -23,9 +23,16 @@ def main():
     f.write(status_files)
     f.close()
     count = 0
+    failed_files = []
+    local_rev = git['rev-parse', 'HEAD']()
+    remote_rev = git['rev-parse', sys.argv[1]]()
     for line in md5sum['-c', tmpf](retcode=None).split('\n'):
         if line.endswith('FAILED'):
-            puts(colored.red(line))
+            failed_files.append(line.rstrip(': FAILED')
+            hcommand = (git['log', '--no-merges', '--prety=oneline',
+                             '%s..%s' % (local_rev, remote_rev)]
+            for hline in progress.mill(hcommand().split('\n')):
+                print hline
             count += 1
         else:
             puts(colored.green(line))
