@@ -7,7 +7,7 @@ from plumbum.cmd import git, md5sum, rm
 def get_md5_files():
     res = []
     if git['--version']().split(' ')[2] < '1.7.0.0':
-        files = [' M %s' % x for x in git['ls-files', '-m']().split('\n' if x]
+        files = [' M %s' % x for x in git['ls-files', '-m']().split('\n') if x]
     else:
         files =  [x for x in git['status', '--porcelain']().split('\n') if x]
     for file_status in files:
