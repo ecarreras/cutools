@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 import tempfile
-from clint.texui import puts, colored
+from clint.textui import puts, colored
 from plumbum.cmd import git, md5sum, rm
 
 def get_md5_files():
