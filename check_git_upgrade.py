@@ -1,8 +1,21 @@
-#!/usr/bin/env python
+!/usr/bin/env python
 import sys
 import tempfile
-from clint.textui import puts, colored
+from clint.textui import puts, colored, progress
 from plumbum.cmd import git, md5sum, rm
+
+def clean_diff(text):
+    res = []
+    skip = True
+    for line in text.split('\n'):
+        if line.startswith('diff --git'):
+            skip = True
+        if line.startswith('@@ '):
+            skip = False
+        if not skip:
+            res.append(line)
+     return '\n'.join(res)
+
 
 def get_md5_files():
     res = []
@@ -19,19 +32,3 @@ def get_md5_files():
 def main():
     status_files = get_md5_files()
     tmpf = tempfile.mkstemp()[1]
-    f = open(tmpf, 'w')
-    f.write(status_files)
-    f.close()
-    count = 0
-    for line in md5sum['-c', tmpf](retcode=None).split('\n'):
-        if line.endswith('FAILED'):
-            puts(colored.red(line))
-            count += 1
-        else:
-            puts(colored.green(line))
-    rm[tmpf]()
-    if count:
-        puts(colored.red("*** WARNING: %s files doesn't match" % count))
-
-if __name__ == '__main__':
-    main()
