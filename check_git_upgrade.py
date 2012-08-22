@@ -1,4 +1,4 @@
-!/usr/bin/env python
+#!/usr/bin/env python
 import sys
 import tempfile
 from clint.textui import puts, colored, progress
