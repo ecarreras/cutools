@@ -49,12 +49,8 @@ def print_diff(diff):
 
 def get_md5_files():
     res = []
-    if git['--version']().split(' ')[2] < '1.7.0.0':
-        files = [' M %s' % x for x in git['ls-files', '-m']().split('\n') if x]
-    else:
-        files =  [x for x in git['status', '--porcelain']().split('\n') if x]
-    for file_status in files:
-        fl = file_status.split()[1]
+    files = ['%s' % x for x in git['ls-files', '-m']().split('\n') if x]
+    for fl in files:
         pymd5 = md5.new(unicode(git['show', '%s:%s' % (sys.argv[1], fl)]()).encode('utf-8')).hexdigest()
         res.append('%s %s' % (pymd5, fl))
     return '\n'.join(res) + '\n'
