@@ -110,7 +110,7 @@ def main():
                 n_files += 1
                 for chunk in local_chunks.values():
                     print_diff(chunk)
-                   	n_chunks += 1
+                    n_chunks += 1
                 puts(colored.red("[x] %s %s" % (pymd5, check_file)))
             else:
                 puts(colored.green("[o] %s %s" % (pymd5, check_file)))
