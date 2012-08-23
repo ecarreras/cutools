@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import md5
+from hashlib import md5
 import sys
 from clint.textui import indent, puts, colored, progress
 from plumbum.cmd import git
@@ -56,7 +56,7 @@ def get_md5_files():
     res = []
     files = ['%s' % x for x in git['ls-files', '-m']().split('\n') if x]
     for fl in files:
-        pymd5 = md5.new(unicode(git['show', '%s:%s' % (sys.argv[1], fl)]()).encode('utf-8')).hexdigest()
+        pymd5 = md5(unicode(git['show', '%s:%s' % (sys.argv[1], fl)]()).encode('utf-8')).hexdigest()
         res.append('%s %s' % (pymd5, fl))
     return '\n'.join(res) + '\n'
 
@@ -71,13 +71,13 @@ def main():
         if not line:
             break
         pymd5, check_file = line.split(' ')
-        if md5.new(open(check_file, 'r').read()).hexdigest() != pymd5:
+        if md5(open(check_file, 'r').read()).hexdigest() != pymd5:
             hcommand = git['log', '--no-merges', '--pretty=oneline',
                            '%s..%s' % (local_rev, remote_rev),
                            check_file]
             local_chunks = {}
             for lchunk in get_chunks(git['diff', check_file]()):
-                local_chunks[md5.new(unicode(lchunk).encode('utf-8')).hexdigest()] = lchunk
+                local_chunks[md5(unicode(lchunk).encode('utf-8')).hexdigest()] = lchunk
             hlines = [x for x in hcommand().split('\n') if x]
             puts("File: %s modified remotely. Searching for local modifications in remote by %s commits" % (check_file, len(hlines)))
             puts("Local chunks: %s" % ', '.join(local_chunks.keys()))
@@ -88,7 +88,7 @@ def main():
                 with indent(4):
                     puts(colored.yellow("**** DIFF %s^1..%s ****"
                                         % (commit, commit)))
-                remote_chunks = [md5.new(unicode(x).encode('utf-8')).hexdigest()
+                remote_chunks = [md5(unicode(x).encode('utf-8')).hexdigest()
                                  for x in get_chunks(git['diff', '%s^1..%s'% (commit, commit),
                                       check_file]())]
                 with indent(4):
