@@ -38,7 +38,7 @@ def clean_diff(text):
 
 def clean_chunk(chunk):
     return '\n'.join([x[1:] for x in chunk.split('\n')
-                      if not x.startswith('-')])
+                      if x and x[0] not in ('-', '@')])
 
 
 def print_diff(diff):
@@ -100,7 +100,8 @@ def main():
                     else:
                         # Secound round
                         rfile = git['show', '%s:%s' % (sys.argv[1], check_file)]()
-                        if rfile.find(clean_chunk(local_chunks[lchunk])) >= 0:
+                        chunk = clean_chunk(local_chunks[lchunk])
+                        if rfile.find(chunk) >= 0:
                             with indent(4):
                                 puts(colored.green("Local chunk %s found in remotes!" % lchunk))
                             del local_chunks[lchunk]
