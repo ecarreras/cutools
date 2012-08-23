@@ -36,6 +36,11 @@ def clean_diff(text):
     return '\n'.join(res)
 
 
+def clean_chunk(chunk):
+    return '\n'.join([x[1:] for x in chunk.split('\n')
+                      if not x.startswith('-')])
+
+
 def print_diff(diff):
     for line in diff.split('\n'):
         line = unicode(line).encode('utf-8')
@@ -69,13 +74,15 @@ def main():
             hcommand = git['log', '--no-merges', '--pretty=oneline',
                            '%s..%s' % (local_rev, remote_rev),
                            check_file]
-            local_chunks = [md5.new(unicode(x).encode('utf-8')).hexdigest() for x in get_chunks(git['diff', check_file]())]
+            local_chunks = {}
+            for lchunk in get_chunks(git['diff', check_file]()):
+                local_chunks[md5.new(unicode(lchunk).encode('utf-8')).hexdigest()] = lchunk
             hlines = [x for x in hcommand().split('\n') if x]
             puts("File: %s modified remotely. Searching for local modifications in remote by %s commits" % (check_file, len(hlines)))
-            puts("Local chunks: %s" % ', '.join(local_chunks))
+            puts("Local chunks: %s" % ', '.join(local_chunks.keys()))
             for hline in hlines:
                 if not hline:
-                    break
+                    continue
                 commit = hline.split(' ')[0]
                 with indent(4):
                     puts(colored.yellow("**** DIFF %s^1..%s ****"
@@ -85,16 +92,25 @@ def main():
                                       check_file]())]
                 with indent(4):
                     puts("Remote chunks: %s" % ', '.join(remote_chunks))
-                for lchunk in local_chunks[:]:
+                for lchunk in local_chunks.keys():
                     if lchunk in remote_chunks:
                         with indent(4):
                             puts(colored.green("Local chunk %s found in remotes!" % lchunk))
-                        local_chunks.remove(lchunk)
+                        del local_chunks[lchunk]
+                    else:
+                        # Secound round
+                        rfile = git['show', '%s:%s' % (sys.argv[1], fl)]()
+                        if rfile.find(clean_chunk(local_chunks[lchunk])) >= 0:
+                            with indent(4):
+                                puts(colored.green("Local chunk %s found in remotes!" % lchunk))
+                            del local_chunks[lchunk]
             if local_chunks:
             	count += 1
-                puts(colored.red("%s %s" % (pymd5, check_file)))
+                for chunk in local_chunks.values():
+                    print_diff(chunk)
+                puts(colored.red("[x] %s %s" % (pymd5, check_file)))
             else:
-                puts(colored.green("%s %s" % (pymd5, check_file)))
+                puts(colored.green("[o] %s %s" % (pymd5, check_file)))
         else:
             puts(colored.green(line))
     if count:
