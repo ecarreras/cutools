@@ -113,7 +113,7 @@ def main():
             else:
                 puts(colored.green("[o] %s %s" % (pymd5, check_file)))
         else:
-            puts(colored.green(line))
+            puts(colored.green("[0] %s" % line))
     if count:
         puts(colored.red("*** WARNING: %s files doesn't match" % count))
 
