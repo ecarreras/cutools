@@ -62,7 +62,8 @@ def get_md5_files():
 
 def main():
     status_files = get_md5_files()
-    count = 0
+    n_chunks = 0
+    n_files = 0
     failed_files = []
     local_rev = git['rev-parse', 'HEAD']().strip()
     remote_rev = git['rev-parse', sys.argv[1]]().strip()
@@ -106,16 +107,17 @@ def main():
                                 puts(colored.green("Local chunk %s found in remotes!" % lchunk))
                             del local_chunks[lchunk]
             if local_chunks:
-            	count += 1
+                n_files += 1
                 for chunk in local_chunks.values():
                     print_diff(chunk)
+                   	n_chunks += 1
                 puts(colored.red("[x] %s %s" % (pymd5, check_file)))
             else:
                 puts(colored.green("[o] %s %s" % (pymd5, check_file)))
         else:
             puts(colored.green("[0] %s" % line))
     if count:
-        puts(colored.red("*** WARNING: %s files doesn't match" % count))
+        puts(colored.red("*** WARNING: %s chunks in %s files doesn't match" % (n_chunks, n_files)))
 
 if __name__ == '__main__':
     main()
