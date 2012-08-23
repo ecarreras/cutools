@@ -99,7 +99,7 @@ def main():
                         del local_chunks[lchunk]
                     else:
                         # Secound round
-                        rfile = git['show', '%s:%s' % (sys.argv[1], fl)]()
+                        rfile = git['show', '%s:%s' % (sys.argv[1], check_file)]()
                         if rfile.find(clean_chunk(local_chunks[lchunk])) >= 0:
                             with indent(4):
                                 puts(colored.green("Local chunk %s found in remotes!" % lchunk))
