@@ -115,7 +115,7 @@ def main():
             else:
                 puts(colored.green("[o] %s %s" % (pymd5, check_file)))
         else:
-            puts(colored.green("[0] %s" % line))
+            puts(colored.green("[o] %s" % line))
     if n_files:
         puts(colored.red("*** WARNING: %s chunks in %s files doesn't match" % (n_chunks, n_files)))
 
