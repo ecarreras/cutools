@@ -67,7 +67,7 @@ def main():
     failed_files = []
     local_rev = git['rev-parse', 'HEAD']().strip()
     remote_rev = git['rev-parse', sys.argv[1]]().strip()
-    for line in status_files.split('\n'):
+    for line in status_files:
         if not line:
             break
         pymd5, check_file = line.split(' ')
