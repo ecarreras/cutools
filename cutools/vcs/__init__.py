@@ -1,27 +1,11 @@
 from collections import defaultdict
 
-def autodetect():
-    
-
 class VCSInterface(object):
     """Interface to create VCS objects to perform an upgrade check.
     """
-    class __metaclass__(type):
-        __inheritors__ = defaultdict(list)
-
-        def __new__(meta, name, bases, dct):
-            klass = type.__new__(meta, name, bases, dct)
-            for base in klass.mro()[1:-1]:
-                meta.__inheritors__[base].append(klass)
-            return klass
 
     def __init__(self, upstrem):
         """Sets the upstream to perform the upgrade check.
-        """
-        raise NotImplementedError()
-
-    def autodetect(self):
-        """Returns True if working directory is type of this VSC.
         """
         raise NotImplementedError()
     
