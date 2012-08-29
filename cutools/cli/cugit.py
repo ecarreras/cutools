@@ -35,12 +35,12 @@ class CuGitApp(App):
                             chunk = clean_chunk(local_chunks[lchunk])
                             if rfile.find(chunk) >= 0:
                                 del local_chunks[lchunk]
-            if local_chunks:
-                n_files += 1
-                for chunk in local_chunks.values():
-                    print_diff(chunk)
-                    n_chunks += 1
-                puts(colored.red("[x] %s %s" % (pymd5, check_file)))
+                if local_chunks:
+                    n_files += 1
+                    for chunk in local_chunks.values():
+                        print_diff(chunk)
+                        n_chunks += 1
+                    puts(colored.red("[x] %s %s" % (pymd5, check_file)))
             else:
                 puts(colored.green("[o] %s %s" % (pymd5, check_file)))
 
