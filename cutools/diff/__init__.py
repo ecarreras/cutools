@@ -1,3 +1,4 @@
+from hashlib import md5
 from clint.textui import puts, colored
 
 
@@ -47,6 +48,13 @@ def get_chunks(diff):
     if chunk:
         chunks.append('\n'.join(chunk))
     return chunks
+
+
+def get_hashed_chunks(chunks):
+    chunks_dict = {}
+    for chunk in chunks:
+        chunks_dict[md5(unicode(chunk).encode('utf-8')).hexdigest()] = chunk
+    return chunks_dict
 
 
 def clean_chunk(chunk):
