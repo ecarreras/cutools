@@ -3,7 +3,7 @@ from cutools import VERSION
 
 def readfile(rfile):
     try:
-        with open(rfile, 'w') as f:
+        with open(rfile, 'r') as f:
             return f.read()
     except:
         return ''
