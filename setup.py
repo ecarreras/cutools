@@ -11,11 +11,11 @@ def readfile(rfile):
 setup(
     name='cutools',
     version='0.1.0',
-    description='A Python module that implements subcommands CLI pattern.',
+    description='Check local modifications in upstream branch',
     long_description=readfile('README.rst'),
     author='Eduard Carreras',
     author_email='ecarreras@gmail.com',
-    url='https://github.com/ecarrers/cutools',
+    url='https://github.com/ecarreras/cutools',
     license=readfile('LICENSE'),
     packages=find_packages(),
     classifiers=[
