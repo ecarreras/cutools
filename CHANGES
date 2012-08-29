@@ -1,0 +1,11 @@
+CHANGES
+=======
+
+v0.2.0 - 2012-08-28
+-------------------
+ * Added --diff option to check command. By default check command only will
+   print the files ok or failed. If --diff flag is enabled it will show the
+   diff.
+
+* Added diff command to get the diff of files that doesn't apply for use when
+  merge is done.
