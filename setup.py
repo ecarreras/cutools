@@ -10,7 +10,7 @@ def readfile(rfile):
 
 setup(
     name='cutools',
-    version='0.1.0',
+    version='0.1.1',
     description='Check local modifications in upstream branch',
     long_description=readfile('README.rst'),
     author='Eduard Carreras',
