@@ -3,6 +3,7 @@ from hashlib import md5, sha1
 from cutools.vcs import VCSInterface
 from cutools.diff import get_chunks, write_tmp_patch
 from plumbum.cmd import git
+from plumbum.commands import ProcessExecutionError
 
 
 class SavePoint(object):
@@ -41,11 +42,15 @@ class Git(VCSInterface):
 
     def get_md5_files(self):
         res = []
-        files = ['%s' % x for x in git['ls-files', '-m']().split('\n') if x]
+        files = [x for x in git['ls-files', '-mo',
+                                '--exclude-standard']().split('\n') if x]
         for fl in files:
             cmd = git['show', '%s:%s' % (self.upstream, fl)]
-            pymd5 = md5(unicode(cmd()).encode('utf-8')).hexdigest()
-            res += [(pymd5, fl)]
+            try:
+                pymd5 = md5(unicode(cmd()).encode('utf-8')).hexdigest()
+                res += [(pymd5, fl)]
+            except ProcessExecutionError:
+                continue
         return res
 
     def fetch(self, remote=None):

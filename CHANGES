@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+v0.3.1 - 2012-09-02
+-------------------
+* Checking local untracked files if they are in remote branch.
+
 v0.3.0 - 2012-09-02
 -------------------
 * Let get_diff without arguments. Gets all current diff.
