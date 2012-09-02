@@ -2,9 +2,12 @@ from hashlib import md5
 from subcmd.app import App
 from subcmd.decorators import arg, option
 from cutools.vcs.git import Git
-from cutools.diff import get_hashed_chunks, clean_chunk, print_diff
+from cutools.diff import get_hashed_chunks, clean_chunk, get_chunks
+from cutools.diff import print_diff, header_diff
+from cutools.diff import write_tmp_patch
 from cutools import VERSION
 from clint.textui import puts, colored
+from clint.textui.prompt import yn
 
 RED = colored.red
 GREEN = colored.green
@@ -73,15 +76,23 @@ class CuGitApp(App):
                 print_diff(git.get_diff(check_file))
 
     @arg('upstream', help='Upstream branch')
-    @option('--interactive', action='store_true', default=False,
-            help="Interactive mode (default: %(default)s)")
+    @option('--no-interactive', action='store_true', default=False,
+            help="Non interactive mode (default: %(default)s)")
     def do_upgrade(self, options):
+        """Upgrade to remote branch and apply patches which aren't
+        in remote branch.
+        """
         git = Git(options.upstream)
         puts("Making a savepoint... ", newline=False)
         savepoint = git.savepoint()
         puts("Savepoint id: %s" % savepoint)
         try:
-            diff_files = self.do_diff(options)
+            diff_files = []
+            status = self.check_files(git)
+            for check_file in status:
+                local_chunks = status[check_file]['local_chunks']
+                if local_chunks:
+                    diff_files += [(check_file, git.get_diff(check_file))]
             diff_to_apply = []
             for check_file, diff in diff_files:
                 header = header_diff(diff)
@@ -89,6 +100,7 @@ class CuGitApp(App):
                     diff_to_apply.append(header + chunk)
             if git.local_rev == git.remote_rev:
                 puts("Already up-to-date.")
+                git.reset()
             else:
                 puts("Merging %s %s..%s " %
                      (options.upstream, git.local_rev[:7], git.remote_rev[:7]),
@@ -101,16 +113,16 @@ class CuGitApp(App):
             puts("Applying patches...")
             for to_apply in diff_to_apply:
                 print_diff(to_apply)
-                if options.interactive:
+                if not options.no_interactive:
                     apply = yn('Apply?')
                     if not apply:
                         patch_file = write_tmp_patch(to_apply)
-                        puts(colored.yellow("Skipped patch. Saved to %s"
+                        puts(colored.yellow("Skipped patch. Saved into %s"
                                             % patch_file))
                         continue
                 git.apply_diff(to_apply)
         except (KeyboardInterrupt, Exception) as e:
-            puts(colored.red(str(e)))
+            puts(RED(str(e)))
             # If anything goes wrong rollback to rescue!
             puts("Restoring savepoint %s " % savepoint, newline=False)
             git.restore(savepoint.identity)

@@ -62,12 +62,15 @@ class Git(VCSInterface):
     def checkout(self, check_file):
         git['checkout', '--', check_file]()
 
+    def reset(self):
+        git['reset', '--hard', self.local_rev]()
+
     def merge(self, upstream=None):
         if not upstream:
             upstream = self.upstream
         if '/' in upstream:
             self.fetch(upstream.split('/')[0])
-        git['reset', '--hard', self.local_rev]()
+        self.reset()
         git['merge', upstream]()
 
     def apply_diff(self, diff):
