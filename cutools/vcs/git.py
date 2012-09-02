@@ -1,13 +1,43 @@
-from hashlib import md5
+from os import remove
+from hashlib import md5, sha1
 from cutools.vcs import VCSInterface
-from cutools.diff import get_chunks
+from cutools.diff import get_chunks, write_tmp_patch
 from plumbum.cmd import git
+
+
+class SavePoint(object):
+    def __init__(self, rev, diff):
+        self.identity = sha1('%s_%s' % (rev, diff)).hexdigest()[:7]
+        self.rev = rev
+        self.diff = diff
+
+    def __str__(self, *args, **kwargs):
+        return self.identity
+
+    def __repr__(self, *args, **kwargs):
+        return '<SavePoint %s>' % self.identity
+
 
 class Git(VCSInterface):
     """Git implementation for Check Upgrade Tools.
     """
     def __init__(self, upstream):
         self.upstream = upstream
+        self.savepoints = {}
+
+    def savepoint(self):
+        sp = SavePoint(self.local_rev, self.get_diff())
+        self.savepoints[sp.identity] = sp
+        return sp
+
+    def restore(self, savepoint_id, remove=True):
+        if savepoint_id not in self.savepoints:
+            raise Exception("This savepoint doesn't exists in this repo.")
+        sp = self.savepoints[savepoint_id]
+        git['reset', '--hard', sp.rev]()
+        self.apply_diff(sp.diff)
+        if remove:
+            del self.savepoints[savepoint_id]
 
     def get_md5_files(self):
         res = []
