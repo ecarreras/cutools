@@ -63,11 +63,14 @@ class Git(VCSInterface):
     def get_chunks(self, check_file, commit=None):
         return get_chunks(self.get_diff(check_file, commit))
 
-    def get_diff(self, check_file, commit=None):
-        if commit:
-            cmd = git['diff', '%s^1..%s'% (commit, commit), check_file]
+    def get_diff(self, check_file=None, commit=None):
+        if check_file:
+            if commit:
+                cmd = git['diff', '%s^1..%s' % (commit, commit), check_file]
+            else:
+                cmd = git['diff', check_file]
         else:
-            cmd = git['diff', check_file]
+            cmd = git['diff']
         return cmd()
 
     def get_remote_file(self, check_file):
