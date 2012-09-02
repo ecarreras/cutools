@@ -103,7 +103,6 @@ class CuGitApp(App):
                 header = header_diff(diff)
                 for chunk in get_chunks(diff):
                     diff_to_apply.append(header + chunk)
-                git.checkout(check_file)
             if git.local_rev == git.remote_rev:
                 puts("Already up-to-date.")
             else:
