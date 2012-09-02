@@ -1,11 +1,17 @@
 CHANGES
 =======
 
+v0.3.0 - 2012-09-02
+-------------------
+* Let get_diff without arguments. Gets all current diff.
+* Adding fetch, checkout, merge, apply_diff, apply_patch to git object.
+* Adding header_diff, write_tmp_patches and write_tmp_patch to diff module.
+* Fix newline for chunks in get_chunks()
+
 v0.2.0 - 2012-08-28
 -------------------
- * Added --diff option to check command. By default check command only will
+* Added --diff option to check command. By default check command only will
    print the files ok or failed. If --diff flag is enabled it will show the
    diff.
-
 * Added diff command to get the diff of files that doesn't apply for use when
   merge is done.

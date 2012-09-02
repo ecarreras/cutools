@@ -48,6 +48,34 @@ class Git(VCSInterface):
             res += [(pymd5, fl)]
         return res
 
+    def fetch(self, remote=None):
+        if not remote:
+            remote = self.upstream.split('/')[0]
+        git['fetch', remote]()
+
+    def checkout(self, check_file):
+        git['checkout', '--', check_file]()
+
+    def merge(self, upstream=None):
+        if not upstream:
+            upstream = self.upstream
+        if '/' in upstream:
+            self.fetch(upstream.split('/')[0])
+        git['reset', '--hard', self.local_rev]()
+        git['merge', upstream]()
+
+    def apply_diff(self, diff):
+        """Apply diff text.
+        """
+        patch_file = write_tmp_patch(diff)
+        self.apply_patch(patch_file)
+        remove(patch_file)
+
+    def apply_patch(self, patch_file):
+        """Apply patch file.
+        """
+        git['apply', patch_file]()
+
     @property
     def local_rev(self):
         return git['rev-parse', 'HEAD']().strip()
@@ -65,11 +93,14 @@ class Git(VCSInterface):
     def get_chunks(self, check_file, commit=None):
         return get_chunks(self.get_diff(check_file, commit))
 
-    def get_diff(self, check_file, commit=None):
-        if commit:
-            cmd = git['diff', '%s^1..%s'% (commit, commit), check_file]
+    def get_diff(self, check_file=None, commit=None):
+        if check_file:
+            if commit:
+                cmd = git['diff', '%s^1..%s' % (commit, commit), check_file]
+            else:
+                cmd = git['diff', check_file]
         else:
-            cmd = git['diff', check_file]
+            cmd = git['diff']
         return cmd()
 
     def get_remote_file(self, check_file):

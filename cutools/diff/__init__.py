@@ -1,4 +1,5 @@
 from hashlib import md5
+from tempfile import mkstemp
 from clint.textui import puts, colored
 
 
@@ -15,6 +16,37 @@ def clean_diff(diff):
         if not skip:
             res.append(line)
     return '\n'.join(res)
+
+
+def header_diff(diff):
+    """Returns the diff header.
+    """
+    return diff[:diff.find(clean_diff(diff))]
+
+
+def write_tmp_patches(diffs):
+    """Write a list of patches.
+    """
+    files = []
+    for idx, diff in enumerate(diffs):
+        prefix = 'cugit-%s-' % str(idx).zfill(5)
+        suffix = '-patch'
+        filename = mkstemp(suffix, prefix)[1]
+        write_tmp_patch(diff, filename)
+        files.append(filename)
+    return files
+
+
+def write_tmp_patch(diff, filename=None):
+    """Writes a patch tempfile.
+    """
+    if not filename:
+        prefix = 'cugit-'
+        suffix = '-patch'
+        filename = mkstemp(suffix, prefix)[1]
+    with open(filename, 'w') as f:
+        f.write(diff)
+    return filename
 
 
 def print_diff(diff):
@@ -41,12 +73,12 @@ def get_chunks(diff):
             continue
         if line.startswith('@@ '):
             if chunk:
-                chunks.append('\n'.join(chunk))
+                chunks.append('\n'.join(chunk) + '\n')
             chunk = [line]
         else:
             chunk.append(line)
     if chunk:
-        chunks.append('\n'.join(chunk))
+        chunks.append('\n'.join(chunk) + '\n')
     return chunks
 
 
