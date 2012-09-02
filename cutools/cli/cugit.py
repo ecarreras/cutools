@@ -118,12 +118,13 @@ class CuGitApp(App):
             puts("Applying patches...")
             for to_apply in diff_to_apply:
                 print_diff(to_apply)
-                apply = yn('Apply?')
-                if not apply:
-                    patch_file = write_tmp_patch(to_apply)
-                    puts(colored.yellow("Skipped patch. Saved to %s"
-                                        % patch_file))
-                    continue
+                if options.interactive:
+                    apply = yn('Apply?')
+                    if not apply:
+                        patch_file = write_tmp_patch(to_apply)
+                        puts(colored.yellow("Skipped patch. Saved to %s"
+                                            % patch_file))
+                        continue
                 git.apply_diff(to_apply)
         except (KeyboardInterrupt, Exception) as e:
             puts(colored.red(str(e)))
