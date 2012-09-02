@@ -1,10 +1,17 @@
+import os
+import sys
 from hashlib import md5
+from tempfile import mkstemp
 from subcmd.app import App
 from subcmd.decorators import arg, option
 from cutools.vcs.git import Git
-from cutools.diff import get_hashed_chunks, clean_chunk, print_diff
+from cutools.diff import get_hashed_chunks, clean_chunk, get_chunks
+from cutools.diff import print_diff, header_diff
+from cutools.diff import write_tmp_patch
 from cutools import VERSION
 from clint.textui import puts, colored
+from clint.textui.prompt import yn
+
 
 class CuGitApp(App):
     name = "cugit"
@@ -17,6 +24,7 @@ class CuGitApp(App):
         """Checks local modifcations if are in upstream.
         """
         git = Git(options.upstream)
+        git.fetch()
         n_files = 0
         n_chunks = 0
         for pymd5, check_file in git.get_md5_files():
@@ -54,6 +62,8 @@ class CuGitApp(App):
         """Print the diff to apply after the upgrade.
         """
         git = Git(options.upstream)
+        git.fetch()
+        diffs = []
         for pymd5, check_file in git.get_md5_files():
             if md5(open(check_file, 'r').read()).hexdigest() != pymd5:
                 local_chunks = get_hashed_chunks(git.get_chunks(check_file))
@@ -73,6 +83,54 @@ class CuGitApp(App):
                             if rfile.find(chunk) >= 0:
                                 del local_chunks[lchunk]
                 if local_chunks:
-                    print_diff(git.get_diff(check_file))
+                    diff = git.get_diff(check_file)
+                    diffs.append((check_file, diff))
+                    print_diff(diff)
+        return diffs
+
+    @arg('upstream', help='Upstream branch')
+    @option('--interactive', action='store_true', default=False,
+            help="Interactive mode (default: %(default)s)")
+    def do_upgrade(self, options):
+        git = Git(options.upstream)
+        puts("Making a savepoint... ", newline=False)
+        savepoint = git.savepoint()
+        puts("Savepoint id: %s" % savepoint)
+        try:
+            diff_files = self.do_diff(options)
+            diff_to_apply = []
+            for check_file, diff in diff_files:
+                header = header_diff(diff)
+                for chunk in get_chunks(diff):
+                    diff_to_apply.append(header + chunk)
+                git.checkout(check_file)
+            if git.local_rev == git.remote_rev:
+                puts("Already up-to-date.")
+            else:
+                puts("Merging %s %s..%s " %
+                     (options.upstream, git.local_rev[:7], git.remote_rev[:7]),
+                     newline=False)
+                git.merge()
+                puts("Done!")
+            if not diff_to_apply:
+                puts("Nothing to apply.")
+                sys.exit(0)
+            puts("Applying patches...")
+            for to_apply in diff_to_apply:
+                print_diff(to_apply)
+                apply = yn('Apply?')
+                if not apply:
+                    patch_file = write_tmp_patch(to_apply)
+                    puts(colored.yellow("Skipped patch. Saved to %s"
+                                        % patch_file))
+                    continue
+                git.apply_diff(to_apply)
+        except (KeyboardInterrupt, Exception) as e:
+            puts(colored.red(str(e)))
+            # If anything goes wrong rollback to rescue!
+            puts("Restoring savepoint %s " % savepoint, newline=False)
+            git.restore(savepoint.identity)
+            puts("Done!")
+
 
 app = CuGitApp()

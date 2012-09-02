@@ -35,5 +35,5 @@ setup(
         ]
     },
     provides=['cutools'],
-    install_requires=['clint', 'plumbum', 'subcmd'],
+    install_requires=['clint2', 'plumbum', 'subcmd'],
 )
