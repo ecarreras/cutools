@@ -1,4 +1,5 @@
-from hashlib import md5
+from os import remove, devnull
+from hashlib import md5, sha1
 from cutools.vcs import VCSInterface
 from cutools.diff import get_chunks
 from plumbum.cmd import git
@@ -20,6 +21,7 @@ class Git(VCSInterface):
                 pymd5 = md5(unicode(cmd()).encode('utf-8')).hexdigest()
                 res += [(pymd5, fl)]
             except ProcessExecutionError:
+                res += [(' ' * 32, fl)]
                 continue
         return res
 
@@ -68,15 +70,27 @@ class Git(VCSInterface):
     def get_chunks(self, check_file, commit=None):
         return get_chunks(self.get_diff(check_file, commit))
 
+    def exists(self, check_file):
+        """Check if exists check_file in remote branch.
+        """
+        try:
+            cmd = git['show', '%s:%s' % (self.upstream, check_file)]()
+            return True
+        except ProcessExecutionError:
+            return False
+
     def get_diff(self, check_file=None, commit=None):
         if check_file:
-            if commit:
-                cmd = git['diff', '%s^1..%s' % (commit, commit), check_file]
+            if self.exists(check_file):
+                if commit:
+                    cmd = git['diff', '%s^1..%s' % (commit, commit), check_file]
+                else:
+                    cmd = git['diff', check_file]
             else:
-                cmd = git['diff', check_file]
+                cmd = git['diff', devnull, check_file]
         else:
             cmd = git['diff']
-        return cmd()
+        return cmd(retcode=(0,1))
 
     def get_remote_file(self, check_file):
         return git['show', '%s:%s' % (self.upstream, check_file)]()
