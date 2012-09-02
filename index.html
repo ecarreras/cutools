@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Cutools by ecarreras</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Cutools</h1>
+        <p>Check Upgrade Tools</p>
+
+        <p class="view"><a href="https://github.com/ecarreras/cutools">View the Project on GitHub <small>ecarreras/cutools</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/ecarreras/cutools/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/ecarreras/cutools/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/ecarreras/cutools">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>Cutools (a.k.a Check Upgrade Tools)</h1>
+
+<p>For this moment only <strong>git</strong> is supported.</p>
+
+<h3>Checks if local modifications are in remote branch</h3>
+
+<div class="highlight"><pre><span class="nv">$ </span>cugit check origin/master
+</pre></div>
+
+<p>Now checking showing the diff</p>
+
+<div class="highlight"><pre><span class="nv">$ </span>cugit check origin/master --diff
+</pre></div>
+
+<h3>Genearte a diff for applying after merge remote branch</h3>
+
+<div class="highlight"><pre><span class="nv">$ </span>cugit diff origin/master 
+</pre></div>
+
+<p>Saving the diff</p>
+
+<div class="highlight"><pre><span class="nv">$ </span>cugit diff origin/master &gt; to_apply.diff
+</pre></div>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/ecarreras">ecarreras</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
