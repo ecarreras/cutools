@@ -41,12 +41,12 @@ def get_chunks(diff):
             continue
         if line.startswith('@@ '):
             if chunk:
-                chunks.append('\n'.join(chunk))
+                chunks.append('\n'.join(chunk) + '\n')
             chunk = [line]
         else:
             chunk.append(line)
     if chunk:
-        chunks.append('\n'.join(chunk))
+        chunks.append('\n'.join(chunk) + '\n')
     return chunks
 
 
