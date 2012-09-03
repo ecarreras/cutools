@@ -13,7 +13,7 @@ class Git(VCSInterface):
 
     def get_md5_files(self):
         res = []
-        files = [x for x in git['ls-files', '-mo',
+        files = [x for x in git['ls-files', '-m', '-o',
                                 '--exclude-standard']().split('\n') if x]
         for fl in files:
             cmd = git['show', '%s:%s' % (self.upstream, fl)]
