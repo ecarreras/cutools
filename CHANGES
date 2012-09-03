@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+v0.3.3 - 2012-09-03
+-------------------
+* Fix getting files for git1.5
+
 v0.3.2 - 2012-09-02
 -------------------
 * Managing right untracked files
