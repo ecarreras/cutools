@@ -38,11 +38,11 @@ class CuGitApp(App):
                 res[check_file]['local_chunks'] = local_chunks
         return res
 
-    @arg('files', metavar='file', nargs='*',
-         help="Files to check", default=None)
     @arg('upstream', help='Upstream branch')
     @option('--diff', action='store_true', default=False,
             help="Show the diff (default: %(default)s)")
+    @arg('files', metavar='file', nargs='*',
+         help="Files to check", default=None)
     def do_check(self, options):
         """Checks local modifcations if are in upstream.
         """
@@ -63,9 +63,9 @@ class CuGitApp(App):
             else:
                 puts(GREEN("OK %s %s" % (pymd5, check_file)))
 
+    @arg('upstream', help='Upstream branch')
     @arg('files', metavar='file', nargs='*',
          help="Files to diff", default=None)
-    @arg('upstream', help='Upstream branch')
     def do_diff(self, options):
         """Print the diff to apply after the upgrade.
         """
