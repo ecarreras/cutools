@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+v0.4.0 - 2012-09-05
+-------------------
+* Add files param to check and diff commands
+
 v0.3.3 - 2012-09-03
 -------------------
 * Fix getting files for git1.5
