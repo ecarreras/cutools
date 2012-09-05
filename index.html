@@ -35,21 +35,25 @@
 <h3>Checks if local modifications are in remote branch</h3>
 
 <div class="highlight"><pre><span class="nv">$ </span>cugit check origin/master
+[files]
 </pre></div>
 
 <p>Now checking showing the diff</p>
 
-<div class="highlight"><pre><span class="nv">$ </span>cugit check origin/master --diff
+<div class="highlight"><pre><span class="nv">$ </span>cugit check origin/master
+--diff [files]
 </pre></div>
 
 <h3>Genearte a diff for applying after merge remote branch</h3>
 
-<div class="highlight"><pre><span class="nv">$ </span>cugit diff origin/master 
+<div class="highlight"><pre><span class="nv">$ </span>cugit diff origin/master
+[files]
 </pre></div>
 
 <p>Saving the diff</p>
 
-<div class="highlight"><pre><span class="nv">$ </span>cugit diff origin/master &gt; to_apply.diff
+<div class="highlight"><pre><span class="nv">$ </span>cugit diff origin/master
+[files] &gt; to_apply.diff
 </pre></div>
       </section>
       <footer>
