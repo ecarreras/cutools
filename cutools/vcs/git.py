@@ -11,10 +11,12 @@ class Git(VCSInterface):
     def __init__(self, upstream):
         self.upstream = upstream
 
-    def get_md5_files(self):
+    def get_md5_files(self, files=None):
         res = []
-        files = [x for x in git['ls-files', '-m', '-o',
-                                '--exclude-standard']().split('\n') if x]
+        cmd = git['ls-files', '-m', '-o', '--exclude-standard']
+        if files:
+            cmd.args += tuple(files)
+        files = [x for x in cmd().split('\n') if x]
         for fl in files:
             cmd = git['show', '%s:%s' % (self.upstream, fl)]
             try:

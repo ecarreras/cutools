@@ -13,10 +13,10 @@ class CuGitApp(App):
     name = "cugit"
     version = VERSION
 
-    def check_files(self, git):
+    def check_files(self, git, files=None):
         res = {}
         git.fetch()
-        for pymd5, check_file in git.get_md5_files():
+        for pymd5, check_file in git.get_md5_files(files):
             res[check_file] = {'checksum': pymd5, 'local_chunks': {}}
             if md5(open(check_file, 'r').read()).hexdigest() != pymd5:
                 local_chunks = get_hashed_chunks(git.get_chunks(check_file))
@@ -38,6 +38,8 @@ class CuGitApp(App):
                 res[check_file]['local_chunks'] = local_chunks
         return res
 
+    @arg('files', metavar='file', nargs='*',
+         help="Files to check", default=None)
     @arg('upstream', help='Upstream branch')
     @option('--diff', action='store_true', default=False,
             help="Show the diff (default: %(default)s)")
@@ -47,7 +49,7 @@ class CuGitApp(App):
         git = Git(options.upstream)
         n_files = 0
         n_chunks = 0
-        status = self.check_files(git)
+        status = self.check_files(git, options.files)
         for check_file in status:
             pymd5 = status[check_file]['checksum']
             local_chunks = status[check_file]['local_chunks']
@@ -61,12 +63,14 @@ class CuGitApp(App):
             else:
                 puts(GREEN("OK %s %s" % (pymd5, check_file)))
 
+    @arg('files', metavar='file', nargs='*',
+         help="Files to diff", default=None)
     @arg('upstream', help='Upstream branch')
     def do_diff(self, options):
         """Print the diff to apply after the upgrade.
         """
         git = Git(options.upstream)
-        status = self.check_files(git)
+        status = self.check_files(git, options.files)
         for check_file in status:
             local_chunks = status[check_file]['local_chunks']
             if local_chunks:
