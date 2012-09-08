@@ -1,6 +1,8 @@
+from os import devnull
 from hashlib import md5
 from tempfile import mkstemp
 from clint.textui import puts, colored
+from plumbum.cmd import diff
 
 
 def clean_diff(diff):
@@ -101,3 +103,10 @@ def chunk_in_text(chunk, text):
     """
     chunk = clean_chunk(chunk)
     return text.find(chunk) >= 0
+
+
+def is_binary(check_file):
+    """Checks if this file is binary withi diff command.
+    """
+    res = diff[devnull, check_file](retcode=(0,1,2))
+    return res.startswith('Binary files')

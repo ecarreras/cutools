@@ -81,6 +81,12 @@ class Git(VCSInterface):
         except ProcessExecutionError:
             return False
 
+    def is_binary(self, check_file):
+        """Hacky version to know if git says if is binary file.
+        """
+        res = git['diff', '--numstat', devnull, check_file](retcode=(0,1))
+        return res.startswith('-\t-\t')
+
     def get_diff(self, check_file=None, commit=None):
         if check_file:
             if self.exists(check_file):
