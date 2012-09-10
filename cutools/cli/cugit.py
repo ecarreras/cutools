@@ -19,22 +19,25 @@ class CuGitApp(App):
         for pymd5, check_file in git.get_md5_files(files):
             res[check_file] = {'checksum': pymd5, 'local_chunks': {}}
             if md5(open(check_file, 'r').read()).hexdigest() != pymd5:
-                local_chunks = get_hashed_chunks(git.get_chunks(check_file))
-                rev_from = git.local_rev
-                rev_to = git.remote_rev
-                for commit in git.get_commits(check_file, rev_from, rev_to):
-                    remote_chunks = [
-                        md5(unicode(x).encode('utf-8')).hexdigest()
-                        for x in git.get_chunks(check_file, commit)
-                    ]
-                    for lchunk in local_chunks.keys():
-                        if lchunk in remote_chunks:
-                            del local_chunks[lchunk]
-                        else:
-                            rfile = git.get_remote_file(check_file)
-                            chunk = clean_chunk(local_chunks[lchunk])
-                            if rfile.find(chunk) >= 0:
+                if git.is_binary(check_file):
+                    local_chunks = {'BF': 'Binary files differ.'}
+                else:
+                    local_chunks = get_hashed_chunks(git.get_chunks(check_file))
+                    rev_from = git.local_rev
+                    rev_to = git.remote_rev
+                    for commit in git.get_commits(check_file, rev_from, rev_to):
+                        remote_chunks = [
+                            md5(unicode(x).encode('utf-8')).hexdigest()
+                            for x in git.get_chunks(check_file, commit)
+                        ]
+                        for lchunk in local_chunks.keys():
+                            if lchunk in remote_chunks:
                                 del local_chunks[lchunk]
+                            else:
+                                rfile = git.get_remote_file(check_file)
+                                chunk = clean_chunk(local_chunks[lchunk])
+                                if rfile.find(chunk) >= 0:
+                                    del local_chunks[lchunk]
                 res[check_file]['local_chunks'] = local_chunks
         return res
 
