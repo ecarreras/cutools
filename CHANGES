@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+v0.5.0 - 2012-09-10
+-------------------
+* Managing binary files (#2)
+
 v0.4.0 - 2012-09-05
 -------------------
 * Add files param to check and diff commands
